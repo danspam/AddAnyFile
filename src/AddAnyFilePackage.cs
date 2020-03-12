@@ -30,7 +30,7 @@ namespace MadsKristensen.AddAnyFile
 
             _dte = await GetServiceAsync(typeof(DTE)) as DTE2;
 
-             Logger.Initialize(this, Vsix.Name);
+            Logger.Initialize(this, Vsix.Name);
 
             if (await GetServiceAsync(typeof(IMenuCommandService)) is OleMenuCommandService mcs)
             {
@@ -55,7 +55,7 @@ namespace MadsKristensen.AddAnyFile
             if (project == null)
                 return;
 
-            string input = PromptForFileName(folder).TrimStart('/', '\\').Replace("/", "\\");
+            string input = PromptForFileName(folder, out var selectedType).TrimStart('/', '\\').Replace("/", "\\");
 
             if (string.IsNullOrEmpty(input))
                 return;
@@ -78,7 +78,7 @@ namespace MadsKristensen.AddAnyFile
 
                 if (!file.Exists)
                 {
-                    int position = await WriteFileAsync(project, file.FullName);
+                    int position = await WriteFileAsync(project, file.FullName, selectedType);
 
                     try
                     {
@@ -127,10 +127,9 @@ namespace MadsKristensen.AddAnyFile
             }
         }
 
-        private static async Task<int> WriteFileAsync(Project project, string file)
+        private static async Task<int> WriteFileAsync(Project project, string file, FileType selectedType)
         {
-            string extension = Path.GetExtension(file);
-            string template = await TemplateMap.GetTemplateFilePathAsync(project, file);
+            string template = await TemplateMap.GetTemplateFilePathAsync(project, file, selectedType);
 
             if (!string.IsNullOrEmpty(template))
             {
@@ -199,17 +198,25 @@ namespace MadsKristensen.AddAnyFile
             return results.ToArray();
         }
 
-        private string PromptForFileName(string folder)
+        private string PromptForFileName(string folder, out FileType fileType)
         {
+            fileType = FileType.AnyFile;
+
             var dir = new DirectoryInfo(folder);
             var dialog = new FileNameDialog(dir.Name);
 
             var hwnd = new IntPtr(_dte.MainWindow.HWnd);
-            var window = (System.Windows.Window)HwndSource.FromHwnd(hwnd).RootVisual;
-            dialog.Owner = window;
+            dialog.Owner = (System.Windows.Window)HwndSource.FromHwnd(hwnd).RootVisual;
 
             bool? result = dialog.ShowDialog();
-            return (result.HasValue && result.Value) ? dialog.Input : string.Empty;
+
+            if (result == true)
+            {
+                fileType = dialog.SelectedType;
+                return dialog.Input;
+            }
+
+            return string.Empty;
         }
 
         private static string FindFolder(object item)

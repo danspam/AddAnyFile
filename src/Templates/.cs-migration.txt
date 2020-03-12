@@ -1,0 +1,18 @@
+using FluentMigrator;
+
+namespace {namespace}
+{
+    [Migration({migrationid})]
+    public class {itemname} : Migration
+    {
+        public override void Up()
+        {
+		$
+        }
+
+        public override void Down()
+        {
+		
+        }
+    }
+}

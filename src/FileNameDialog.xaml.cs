@@ -59,6 +59,22 @@ namespace MadsKristensen.AddAnyFile
             get { return txtName.Text.Trim(); }
         }
 
+        public FileType SelectedType
+        {
+            get
+            {
+                if (NUnitTest.IsChecked == true)
+                {
+                    return FileType.NUnitTest;
+                }
+                if (Migration.IsChecked == true)
+                {
+                    return FileType.Migration;
+                }
+                return FileType.AnyFile;
+            }
+        }
+
         private void SetRandomTip()
         {
             var rnd = new Random(DateTime.Now.GetHashCode());
@@ -70,6 +86,11 @@ namespace MadsKristensen.AddAnyFile
         {
             DialogResult = true;
             Close();
+        }
+
+        private void RadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

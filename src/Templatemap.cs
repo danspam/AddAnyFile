@@ -22,10 +22,19 @@ namespace MadsKristensen.AddAnyFile
             _templateFiles = Directory.GetFiles(_folder, "*" + _defaultExt, SearchOption.AllDirectories);
         }
 
-        public static async Task<string> GetTemplateFilePathAsync(Project project, string file)
+        public static async Task<string> GetTemplateFilePathAsync(Project project, string file, FileType selectedType)
         {
             string extension = Path.GetExtension(file).ToLowerInvariant();
             string name = Path.GetFileName(file);
+
+            //default file type is cs
+            if (name != "__dummy__" && string.IsNullOrWhiteSpace(extension))
+            {
+                file += ".cs";
+                extension = Path.GetExtension(file).ToLowerInvariant();
+                name = Path.GetFileName(file);
+            }
+
             string safeName = name.StartsWith(".") ? name : Path.GetFileNameWithoutExtension(file);
             string relative = PackageUtilities.MakeRelative(project.GetRootFolder(), Path.GetDirectoryName(file));
 
@@ -40,7 +49,7 @@ namespace MadsKristensen.AddAnyFile
             // Look for file extension matches
             else if (_templateFiles.Any(f => Path.GetFileName(f).Equals(extension + _defaultExt, StringComparison.OrdinalIgnoreCase)))
             {
-                string tmpl = AdjustForSpecific(safeName, extension);
+                string tmpl = AdjustForSpecific(safeName, extension, selectedType);
                 templateFile = GetTemplate(tmpl);
             }
 
@@ -71,7 +80,8 @@ namespace MadsKristensen.AddAnyFile
                 string content = await reader.ReadToEndAsync();
 
                 return content.Replace("{namespace}", ns)
-                              .Replace("{itemname}", name);
+                              .Replace("{itemname}", name)
+                              .Replace("{migrationid}", DateTime.Now.ToString("yyyyMMddHHmm"));
             }
         }
 
@@ -83,10 +93,16 @@ namespace MadsKristensen.AddAnyFile
             return Regex.Replace(content, @"\r\n|\n\r|\n|\r", "\r\n");
         }
 
-        private static string AdjustForSpecific(string safeName, string extension)
+        private static string AdjustForSpecific(string safeName, string extension, FileType selectedType)
         {
             if (Regex.IsMatch(safeName, "^I[A-Z].*"))
                 return extension += "-interface";
+
+            if (selectedType == FileType.Migration)
+                return extension += "-migration";
+
+            if (selectedType == FileType.NUnitTest)
+                return extension += "-nutest";
 
             return extension;
         }

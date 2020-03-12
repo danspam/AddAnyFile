@@ -1,0 +1,25 @@
+using System.Threading.Tasks;
+using Moq;
+using NUnit.Framework;
+using Shouldly;
+using waywedo.Tests.Helpers;
+using waywedo.Tests.Helpers.Stubs;
+
+namespace {namespace} {
+
+	[TestFixture]
+	public class {itemname} : TestingContext<$>
+	{
+		[SetUp]
+        	public void SetUp()
+        	{
+			SetupContext();
+        	}
+
+		[Test]
+		public async Task TestMethod()
+		{
+
+		}
+	}
+}
