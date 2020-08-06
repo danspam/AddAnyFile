@@ -26,15 +26,6 @@ namespace MadsKristensen.AddAnyFile
         {
             string extension = Path.GetExtension(file).ToLowerInvariant();
             string name = Path.GetFileName(file);
-
-            //default file type is cs
-            if (name != "__dummy__" && string.IsNullOrWhiteSpace(extension))
-            {
-                file += ".cs";
-                extension = Path.GetExtension(file).ToLowerInvariant();
-                name = Path.GetFileName(file);
-            }
-
             string safeName = name.StartsWith(".") ? name : Path.GetFileNameWithoutExtension(file);
             string relative = PackageUtilities.MakeRelative(project.GetRootFolder(), Path.GetDirectoryName(file));
 

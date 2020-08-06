@@ -70,6 +70,15 @@ namespace MadsKristensen.AddAnyFile
                 {
                     input = input + "__dummy__";
                 }
+                else
+                {
+                    //assume cs file if no extension
+                    string extension = Path.GetExtension(input).ToLowerInvariant();
+                    if (string.IsNullOrWhiteSpace(extension))
+                    {
+                        input += ".cs";
+                    }
+                }
 
                 var file = new FileInfo(Path.Combine(folder, input));
                 string dir = file.DirectoryName;
