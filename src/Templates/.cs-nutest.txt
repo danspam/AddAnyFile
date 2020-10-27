@@ -11,10 +11,10 @@ namespace {namespace} {
 	public class {itemname} : TestingContext<$>
 	{
 		[SetUp]
-        	public void SetUp()
-        	{
-			SetupContext();
-        	}
+        public void SetUp()
+        {
+
+        }
 
 		[Test]
 		public async Task TestMethod()
