@@ -1,4 +1,12 @@
-﻿using System;
+﻿using EnvDTE;
+
+using EnvDTE80;
+
+using Microsoft;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Text;
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.IO;
@@ -8,11 +16,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Interop;
-using EnvDTE;
-using EnvDTE80;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Text;
 
 namespace MadsKristensen.AddAnyFile
 {
@@ -29,6 +34,7 @@ namespace MadsKristensen.AddAnyFile
             await JoinableTaskFactory.SwitchToMainThreadAsync();
 
             _dte = await GetServiceAsync(typeof(DTE)) as DTE2;
+            Assumes.Present(_dte);
 
             Logger.Initialize(this, Vsix.Name);
 
@@ -46,19 +52,25 @@ namespace MadsKristensen.AddAnyFile
             string folder = FindFolder(item);
 
             if (string.IsNullOrEmpty(folder) || !Directory.Exists(folder))
+            {
                 return;
+            }
 
             var selectedItem = item as ProjectItem;
             var selectedProject = item as Project;
             Project project = selectedItem?.ContainingProject ?? selectedProject ?? ProjectHelpers.GetActiveProject();
 
             if (project == null)
+            {
                 return;
+            }
 
             string input = PromptForFileName(folder, out var selectedType).TrimStart('/', '\\').Replace("/", "\\");
 
             if (string.IsNullOrEmpty(input))
+            {
                 return;
+            }
 
             string[] parsedInputs = GetParsedInput(input);
 
@@ -80,18 +92,41 @@ namespace MadsKristensen.AddAnyFile
                     }
                 }
 
-                var file = new FileInfo(Path.Combine(folder, input));
+                FileInfo file = null;
+
+                try
+                {
+                    file = new FileInfo(Path.Combine(folder, input));
+                }
+                catch (PathTooLongException ex)
+                {
+                    MessageBox.Show("The file name is too long 😢", Vsix.Name, MessageBoxButton.OK, MessageBoxImage.Error);
+                    Logger.Log(ex);
+                    continue;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log(ex);
+                    continue;
+                }
+
+                if (!IsFileNameValid(file.Name))
+                {
+                    MessageBox.Show($"The file name '{file.Name}' is a system reserved name.", Vsix.Name, MessageBoxButton.OK, MessageBoxImage.Error);
+                    continue;
+                }
+
                 string dir = file.DirectoryName;
 
                 PackageUtilities.EnsureOutputPath(dir);
 
                 if (!file.Exists)
                 {
-                    int position = await WriteFileAsync(project, file.FullName, selectedType);
-
                     try
                     {
+                        int position = await WriteFileAsync(project, file.FullName, selectedType);
                         ProjectItem projectItem = null;
+
                         if (item is ProjectItem projItem)
                         {
                             if ("{6BB5F8F0-4483-11D3-8BCF-00C04F8EC28C}" == projItem.Kind) // Constants.vsProjectItemKindVirtualFolder
@@ -134,6 +169,12 @@ namespace MadsKristensen.AddAnyFile
                     System.Windows.Forms.MessageBox.Show("The file '" + file + "' already exist.");
                 }
             }
+        }
+
+        private static bool IsFileNameValid(string fileName)
+        {
+            string[] list = new[] { "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "COM0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9", "LPT0" };
+            return !list.Contains(fileName, StringComparer.OrdinalIgnoreCase);
         }
 
         private static async Task<int> WriteFileAsync(Project project, string file, FileType selectedType)

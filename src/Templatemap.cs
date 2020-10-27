@@ -1,19 +1,21 @@
-﻿using System;
+﻿using EnvDTE;
+
+using Microsoft.VisualStudio.Shell;
+
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using EnvDTE;
-using Microsoft.VisualStudio.Shell;
 
 namespace MadsKristensen.AddAnyFile
 {
-    static class TemplateMap
+    internal static class TemplateMap
     {
-        static readonly string _folder;
-        static readonly string[] _templateFiles;
-        const string _defaultExt = ".txt";
+        private static readonly string _folder;
+        private static readonly string[] _templateFiles;
+        private const string _defaultExt = ".txt";
 
         static TemplateMap()
         {
@@ -56,7 +58,9 @@ namespace MadsKristensen.AddAnyFile
         private static async Task<string> ReplaceTokensAsync(Project project, string name, string relative, string templateFile)
         {
             if (string.IsNullOrEmpty(templateFile))
+            {
                 return templateFile;
+            }
 
             string rootNs = project.GetRootNamespace();
             string ns = string.IsNullOrEmpty(rootNs) ? "MyNamespace" : rootNs;
