@@ -24,8 +24,7 @@ namespace MadsKristensen.AddAnyFile
 
 			lblFolder.Content = string.Format("{0}/", folder);
 
-			Loaded += (s, e) =>
-			{
+			Loaded += (s, e) => {
 				Icon = BitmapFrame.Create(new Uri("pack://application:,,,/AddAnyFile;component/Resources/icon.png", UriKind.RelativeOrAbsolute));
 				Title = Vsix.Name;
 				SetRandomTip();
@@ -35,8 +34,7 @@ namespace MadsKristensen.AddAnyFile
 				txtName.Text = DEFAULT_TEXT;
 				txtName.Select(0, txtName.Text.Length);
 
-				txtName.PreviewKeyDown += (a, b) =>
-				{
+				txtName.PreviewKeyDown += (a, b) => {
 					if (b.Key == Key.Escape)
 					{
 						if (string.IsNullOrWhiteSpace(txtName.Text) || txtName.Text == DEFAULT_TEXT)
@@ -60,6 +58,21 @@ namespace MadsKristensen.AddAnyFile
 
 		public string Input => txtName.Text.Trim();
 
+		public FileType SelectedType {
+			get
+			{
+				if (NUnitTest.IsChecked == true)
+				{
+					return FileType.NUnitTest;
+				}
+				if (Migration.IsChecked == true)
+				{
+					return FileType.Migration;
+				}
+				return FileType.AnyFile;
+			}
+		}
+
 		private void SetRandomTip()
 		{
 			Random rnd = new Random(DateTime.Now.GetHashCode());
@@ -71,6 +84,11 @@ namespace MadsKristensen.AddAnyFile
 		{
 			DialogResult = true;
 			Close();
+		}
+
+		private void RadioButton_Checked(object sender, RoutedEventArgs e)
+		{
+
 		}
 	}
 }

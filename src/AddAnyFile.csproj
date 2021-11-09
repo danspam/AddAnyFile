@@ -91,6 +91,7 @@
       <DependentUpon>FileNameDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="AddAnyFilePackage.cs" />
+    <Compile Include="FileType.cs" />
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Helpers\ProjectHelpers.cs" />
     <Compile Include="Helpers\VsTheme.cs" />
@@ -111,6 +112,8 @@
     <Content Include="Templates\.cs-enum.txt">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Resource Include="Templates\.cs-migration.txt" />
+    <Resource Include="Templates\.cs-nutest.txt" />
     <Content Include="Templates\.html.txt">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>

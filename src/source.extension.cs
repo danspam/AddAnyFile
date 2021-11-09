@@ -8,8 +8,8 @@ namespace MadsKristensen.AddAnyFile
 {
     internal sealed partial class Vsix
     {
-        public const string Id = "d48e8f25-661b-4970-8b66-03f051ba5fc3";
-        public const string Name = "Add New File (64-bit)";
+        public const string Id = "1A0B619E-17D4-4CE4-A4B6-1F24CA0E16D1";
+        public const string Name = "Custom Add New File (64-bit)";
         public const string Description = @"The fastest and easiest way to add new files to any project - including files that start with a dot";
         public const string Language = "en-US";
         public const string Version = "4.6";

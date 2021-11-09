@@ -124,6 +124,7 @@ namespace MadsKristensen.AddAnyFile
 
 				return content.Replace("{namespace}", ns)
 							  .Replace("{itemname}", name)
+                              .Replace("{migrationid}", DateTime.Now.ToString("yyyyMMddHHmm"))
 							  .Replace("{mvcprojectnamespace}", mvcProjectControllerNs);
 			}
 		}
@@ -144,6 +145,14 @@ namespace MadsKristensen.AddAnyFile
 			{
 				return extension += "-interface";
 			}
+            else if (selectedType == FileType.Migration)
+            {
+                return extension += "-migration";
+            }
+            else if (selectedType == FileType.NUnitTest)
+            {
+                return extension += "-nutest";
+            }
 			else if (Regex.IsMatch(safeName, @".+Enum$"))
 			{
 				return extension += "-enum";

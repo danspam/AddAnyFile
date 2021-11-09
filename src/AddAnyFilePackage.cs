@@ -64,7 +64,9 @@ namespace MadsKristensen.AddAnyFile
 				return;
 			}
 
-			string input = PromptForFileName(target.Directory).TrimStart('/', '\\').Replace("/", "\\");
+			(string input, FileType selectedType) = PromptForFileName(target.Directory);
+
+			input = input.TrimStart('/', '\\').Replace("/", "\\");
 
 			if (string.IsNullOrEmpty(input))
 			{
@@ -77,7 +79,7 @@ namespace MadsKristensen.AddAnyFile
 			{
 				try
 				{
-					AddItemAsync(name, target).Forget();
+					AddItemAsync(name, target, selectedType).Forget();
 				}
 				catch (Exception ex) when (!ErrorHandler.IsCriticalException(ex))
 				{
@@ -91,7 +93,7 @@ namespace MadsKristensen.AddAnyFile
 			}
 		}
 
-		private async System.Threading.Tasks.Task AddItemAsync(string name, NewItemTarget target)
+		private async System.Threading.Tasks.Task AddItemAsync(string name, NewItemTarget target, FileType selectedType)
 		{
 			// The naming rules that apply to files created on disk also apply to virtual solution folders,
 			// so regardless of what type of item we are creating, we need to validate the name.
@@ -110,7 +112,7 @@ namespace MadsKristensen.AddAnyFile
 			}
 			else
 			{
-				await AddFileAsync(name, target);
+				await AddFileAsync(name, target, selectedType);
 			}
 		}
 
@@ -134,7 +136,7 @@ namespace MadsKristensen.AddAnyFile
 			} while (!string.IsNullOrEmpty(path));
 		}
 
-		private async System.Threading.Tasks.Task AddFileAsync(string name, NewItemTarget target)
+		private async System.Threading.Tasks.Task AddFileAsync(string name, NewItemTarget target, FileType selectedType)
 		{
 			await JoinableTaskFactory.SwitchToMainThreadAsync();
 			FileInfo file;
@@ -156,6 +158,13 @@ namespace MadsKristensen.AddAnyFile
 			}
 			else
 			{
+				//assume cs file if no extension
+				string extension = Path.GetExtension(name).ToLowerInvariant();
+				if (string.IsNullOrWhiteSpace(extension))
+				{
+					name += ".cs";
+				}
+
 				file = new FileInfo(Path.Combine(target.Directory, name));
 			}
 
@@ -176,7 +185,7 @@ namespace MadsKristensen.AddAnyFile
 					project = target.Project;
 				}
 
-				int position = await WriteFileAsync(project, file.FullName);
+				int position = await WriteFileAsync(project, file.FullName, selectedType);
 				if (target.ProjectItem != null && target.ProjectItem.IsKind(Constants.vsProjectItemKindVirtualFolder))
 				{
 					target.ProjectItem.ProjectItems.AddFromFile(file.FullName);
@@ -208,9 +217,9 @@ namespace MadsKristensen.AddAnyFile
 			}
 		}
 
-		private static async Task<int> WriteFileAsync(Project project, string file)
+		private static async Task<int> WriteFileAsync(Project project, string file, FileType selectedType)
 		{
-			string template = await TemplateMap.GetTemplateFilePathAsync(project, file);
+			string template = await TemplateMap.GetTemplateFilePathAsync(project, file, selectedType);
 
 			if (!string.IsNullOrEmpty(template))
 			{
@@ -337,7 +346,7 @@ namespace MadsKristensen.AddAnyFile
 			return results.ToArray();
 		}
 
-		private string PromptForFileName(string folder)
+		private (string, FileType) PromptForFileName(string folder)
 		{
 			DirectoryInfo dir = new DirectoryInfo(folder);
 			FileNameDialog dialog = new FileNameDialog(dir.Name)
@@ -348,7 +357,9 @@ namespace MadsKristensen.AddAnyFile
 			};
 
 			bool? result = dialog.ShowDialog();
-			return (result.HasValue && result.Value) ? dialog.Input : string.Empty;
+			var fileName = (result.HasValue && result.Value) ? dialog.Input : string.Empty;
+
+			return (fileName, dialog.SelectedType);
 		}
 
 		private void ExecuteCommandIfAvailable(string commandName)
