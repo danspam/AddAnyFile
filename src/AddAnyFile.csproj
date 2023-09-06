@@ -114,6 +114,12 @@
     </Content>
     <Resource Include="Templates\.cs-migration.txt" />
     <Resource Include="Templates\.cs-nutest.txt" />
+    <Content Include="Templates\.cs-migration.txt">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Templates\.cs-nutest.txt">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="Templates\.html.txt">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
