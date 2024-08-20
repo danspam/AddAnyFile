@@ -32,7 +32,7 @@ namespace MadsKristensen.AddAnyFile
 			_templateFiles.AddRange(Directory.GetFiles(_folder, "*" + _defaultExt, SearchOption.AllDirectories));
 		}
 
-		public static async Task<string> GetTemplateFilePathAsync(Project project, string file)
+		public static async Task<string> GetTemplateFilePathAsync(Project project, string file, FileType selectedType)
 		{
 			var name = Path.GetFileName(file);
 			var safeName = name.StartsWith(".") ? name : Path.GetFileNameWithoutExtension(file);
@@ -42,7 +42,7 @@ namespace MadsKristensen.AddAnyFile
 
 			AddTemplatesFromCurrentFolder(list, Path.GetDirectoryName(file));
 
-			var templateFile = GetMatchingTemplateFromFileName(project, list, file);
+			var templateFile = GetMatchingTemplateFromFileName(project, list, file, selectedType);
 
 			var template = await ReplaceTokensAsync(project, safeName, relative, templateFile);
 			return NormalizeLineEndings(template);
@@ -68,7 +68,7 @@ namespace MadsKristensen.AddAnyFile
 			list.InsertRange(0, dynaList);
 		}
 
-		private static string GetMatchingTemplateFromFileName(Project project, List<string> templateFilePaths, string file)
+		private static string GetMatchingTemplateFromFileName(Project project, List<string> templateFilePaths, string file, FileType selectedType)
 		{
 			var extension = Path.GetExtension(file).ToLowerInvariant();
 			var name = Path.GetFileName(file);
@@ -94,7 +94,7 @@ namespace MadsKristensen.AddAnyFile
 			if (templateFilePaths.Any(extensionMatchingPredicate))
 			{
 				var tmplFile = templateFilePaths.FirstOrDefault(extensionMatchingPredicate);
-				var tmpl = AdjustForSpecific(project, safeName, extension);
+				var tmpl = AdjustForSpecific(project, safeName, extension, selectedType);
 				return Path.Combine(Path.GetDirectoryName(tmplFile), tmpl + _defaultExt); //GetTemplate(tmpl);
 			}
 
@@ -139,7 +139,7 @@ namespace MadsKristensen.AddAnyFile
 			return Regex.Replace(content, @"\r\n|\n\r|\n|\r", "\r\n");
 		}
 
-		private static string AdjustForSpecific(Project project, string safeName, string extension)
+		private static string AdjustForSpecific(Project project, string safeName, string extension, FileType selectedType)
 		{
 			if (Regex.IsMatch(safeName, "^I[A-Z].*"))
 			{
