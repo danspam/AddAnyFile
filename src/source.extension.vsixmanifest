@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="1A0B619E-17D4-4CE4-A4B6-1F24CA0E16D1" Version="4.0" Language="en-US" Publisher="Mads Kristensen" />
+        <Identity Id="2D005365-A798-4B47-9E54-FFD05AAB8B7F" Version="4.0" Language="en-US" Publisher="Mads Kristensen" />
         <DisplayName>Add New File (64-bit modified)</DisplayName>
         <Description xml:space="preserve">The fastest and easiest way to add new files to any project - including files that start with a dot</Description>
         <MoreInfo>https://github.com/madskristensen/AddAnyFile</MoreInfo>

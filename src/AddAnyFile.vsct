@@ -33,10 +33,10 @@
 
     <Symbols>
         <!-- This is the package guid. -->
-        <GuidSymbol name="guidAddAnyFilePkg" value="{27dd9dea-6dd2-403e-929d-3ff20d896c5e}" />
+        <GuidSymbol name="guidAddAnyFilePkg" value="{49335c7b-857d-42bd-ae53-3bfa8a4b5ad9}" />
 
         <!-- This is the guid used to group the menu commands together -->
-        <GuidSymbol name="guidAddAnyFileCmdSet" value="{32af8a17-bbbc-4c56-877e-fc6c6575a8cf}">
+        <GuidSymbol name="guidAddAnyFileCmdSet" value="{3c875207-67c2-4ad7-88b3-91f2ca302c0f}">
             <IDSymbol name="cmdidMyCommand" value="0x0100" />
         </GuidSymbol>
     </Symbols>
